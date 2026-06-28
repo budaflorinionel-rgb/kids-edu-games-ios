@@ -25,7 +25,6 @@ jobs:
 
     - name: Build Archive
       run: |
-        cd "Kids Edu Games"
         xcodebuild archive \
           -project "Kids Edu Games.xcodeproj" \
           -scheme "Kids Edu Games" \
