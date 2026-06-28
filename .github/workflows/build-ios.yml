@@ -19,12 +19,9 @@ jobs:
         xcode-version: '15.4'
 
     - name: Install Apple API Key
-      env:
-        API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
-        API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
       run: |
         mkdir -p ~/private_keys
-        echo "$API_KEY_BASE64" | base64 --decode > ~/private_keys/AuthKey_${API_KEY_ID}.p8
+        echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > ~/private_keys/AuthKey_${{ secrets.API_KEY_ID }}.p8
 
     - name: Build Archive
       run: |
@@ -35,11 +32,11 @@ jobs:
           -archivePath "$RUNNER_TEMP/KidsEduGames.xcarchive" \
           -destination "generic/platform=iOS" \
           -allowProvisioningUpdates \
-          -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
-          -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
-          -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }} \
+          -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.API_KEY_ID }}.p8 \
+          -authenticationKeyID ${{ secrets.API_KEY_ID }} \
+          -authenticationKeyIssuerID ${{ secrets.ISSUER_ID }} \
           CODE_SIGN_STYLE=Automatic \
-          DEVELOPMENT_TEAM=${{ secrets.APPLE_TEAM_ID }}
+          DEVELOPMENT_TEAM=${{ secrets.TEAM_ID }}
 
     - name: Export IPA
       run: |
@@ -51,7 +48,7 @@ jobs:
             <key>method</key>
             <string>app-store</string>
             <key>teamID</key>
-            <string>${{ secrets.APPLE_TEAM_ID }}</string>
+            <string>${{ secrets.TEAM_ID }}</string>
             <key>uploadSymbols</key>
             <true/>
             <key>destination</key>
@@ -65,14 +62,14 @@ jobs:
           -exportOptionsPlist exportOptions.plist \
           -exportPath "$RUNNER_TEMP/export" \
           -allowProvisioningUpdates \
-          -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}.p8 \
-          -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
-          -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          -authenticationKeyPath ~/private_keys/AuthKey_${{ secrets.API_KEY_ID }}.p8 \
+          -authenticationKeyID ${{ secrets.API_KEY_ID }} \
+          -authenticationKeyIssuerID ${{ secrets.ISSUER_ID }}
 
     - name: Upload to App Store Connect
       run: |
         xcrun altool --upload-app \
           --type ios \
           --file "$RUNNER_TEMP/export/Kids Edu Games.ipa" \
-          --apiKey ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }} \
-          --apiIssuer ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          --apiKey ${{ secrets.API_KEY_ID }} \
+          --apiIssuer ${{ secrets.ISSUER_ID }}
