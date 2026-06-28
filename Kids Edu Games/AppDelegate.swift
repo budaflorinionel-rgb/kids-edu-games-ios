@@ -1,39 +1,22 @@
 import UIKit
-import FirebaseCore
-import FirebaseMessaging
-
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    
     var window : UIWindow?
 
     func application(_ application: UIApplication,
                        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
-// TODO: if we're using Firebase, uncomment next string
-        //FirebaseApp.configure()
-
-        // [START set_messaging_delegate]
-        Messaging.messaging().delegate = self
-        // [END set_messaging_delegate]
-        // Register for remote notifications. This shows a permission dialog on first run, to
-        // show the dialog at a more appropriate time move this registration accordingly.
-        // [START register_for_notifications]
-   
         UNUserNotificationCenter.current().delegate = self
-
-      //  let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-      //  UNUserNotificationCenter.current().requestAuthorization(
-      //      options: authOptions,
-      //      completionHandler: {_, _ in })
-
-// TODO: if we're using Firebase, uncomment next string
-        // application.registerForRemoteNotifications()
-
-        // [END register_for_notifications]
         return true
-      }
+    }
+
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    }
+
+    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
+    }
 
       // [START receive_message]
       func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
@@ -126,18 +109,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         completionHandler()
       }
     }
-    // [END ios_10_message_handling]
 
-    extension AppDelegate : MessagingDelegate {
-      // [START refresh_token]
-      func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        print("Firebase registration token: \(String(describing: fcmToken))")
-        
-        let dataDict:[String: String] = ["token": fcmToken ?? ""]
-        NotificationCenter.default.post(name: Notification.Name("FCMToken"), object: nil, userInfo: dataDict)
-        handleFCMToken()
-        // TODO: If necessary send token to application server.
-        // Note: This callback is fired at each app startup and whenever a new token is generated.
-      }
-      // [END refresh_token]
-    }
